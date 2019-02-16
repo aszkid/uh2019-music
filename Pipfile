@@ -1,0 +1,19 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+ipykernel = "*"
+jupyter = "*"
+"music21" = "*"
+selenium = "*"
+"bs4" = "*"
+requests = "*"
+
+
+[dev-packages]
+
