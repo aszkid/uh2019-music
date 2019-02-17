@@ -187,6 +187,39 @@ def text_generate(model, text, maxlen=4, temperature=1.0, textlen=10):
     
     return outp
 
+def text_generate_w(model, text, cutoff, maxlen=4, temperature=1.0, textlen=10):
+    """
+    Generate text based on a model.
+    
+    :param model: trained keras model
+    :type  model: keras.engine.sequential.Sequential
+    :param text: lyrics
+    :type  text: str
+    :param maxlen: maximum length of the sequences
+    :type  maxlen: int
+    :param textlen: Number of characters of generated sequence
+    :type  textlen: int
+    """
+
+    generated_text = text
+    outp = generated_text[cutoff:]
+    print('--- Generating with temperature {}'.format(temperature))
+    print(outp)
+    
+    
+    for i in range(textlen):
+        sampled = np.zeros((1, maxlen, num_vals))
+        for t, char in enumerate(generated_text):
+            #print('(t, char) = ({}, {})'.format(t, char))
+            sampled[0, t, min(num_vals - 1, char)] = 1
+        preds = model.predict(sampled, verbose=0)[0]
+        next_char = sample(preds, temperature)
+        generated_text.append(next_char)
+        generated_text = generated_text[1:]
+        outp.append(next_char)
+    
+    return outp
+
 def splitz(seq, cut):
     group = []    
     for num in seq:

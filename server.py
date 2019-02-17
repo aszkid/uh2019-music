@@ -2,19 +2,30 @@ from flask import Flask, render_template, request
 import music_generator as mg
 import json
 import tensorflow as tf
+import prepare as p
 
 app = Flask(__name__)
 
 @app.route("/")
 def main():
-	return "AHHHHHHHHHHHH"
-	# return render_template('index.html')
+	# return "AHHHHHHHHHHHH"
+	return render_template('index.html')
 
 @app.route('/gen',methods=['GET'])
 def show_stuff():
 	chs = request.args.get('chords')
-	temp = request.args.get('temp')
-	mlen = request.args.get('len')
+	temp = float(request.args.get('temperature'))
+	mlen = int(request.args.get('length'))
+
+	cleaned = p.chord_cleaned(chs)
+	print(type(cleaned))
+
+	fill = [0]*(60 - len(cleaned))
+	fill.extend(cleaned)
+	# return str(fill)
+	# return str(p.chord_cleaned(chs))
+	# return 
+	#TODO parse chords 
 
 	config = tf.ConfigProto()
 	config.gpu_options.allow_growth = True
@@ -25,9 +36,9 @@ def show_stuff():
 	    training_data = json.loads(f.read()) #reminder that training_data is a huge ass string
 
 	hp_maxlen = 60
-	text = mg.text_generate(ml_model,training_data,maxlen=hp_maxlen,temperature=temp,textlen=60)
-
-	return str(text)
+	muse = mg.text_generate_w(ml_model,fill,60 - len(cleaned),maxlen=hp_maxlen,temperature=temp,textlen=60)
+	return str(muse)
+	# return str(text)
 	# return "temperature = {} lchs = {} len = {}".format(temp,chords,mlen)
 
 

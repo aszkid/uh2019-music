@@ -102,6 +102,20 @@ def better_preprocess(fname, outfname):
         json.dump(final, f)
     return;
 
+def chord_cleaned(chords):
+    import sys
+    from functools import reduce
+    
+    chs = [sanitize_chord(c) for c in chords.split()]
+    chs = tomusic21(chs)
+    key = 'C'
+   
+    chs = transpose_chs(chs, key)
+    chs = flatten(chs)
+    # separate chords with '12' integer
+    chs = reduce(lambda a, b: a+[12]+b, chs)
+    return chs
+
 #Helper functions for sanity checks of improperly formatted songs
 def count_none(fn):
     count = 0 
