@@ -7,16 +7,14 @@ app = Flask(__name__)
 
 @app.route("/")
 def main():
-	
-
 	return "AHHHHHHHHHHHH"
 	# return render_template('index.html')
 
 @app.route('/gen',methods=['GET'])
-def show_stuff(temp,chords,len):
+def show_stuff():
 	chs = request.args.get('chords')
 	temp = request.args.get('temp')
-	mlen = request.args.get('temp')
+	mlen = request.args.get('len')
 
 	config = tf.ConfigProto()
 	config.gpu_options.allow_growth = True
@@ -27,9 +25,10 @@ def show_stuff(temp,chords,len):
 	    training_data = json.loads(f.read()) #reminder that training_data is a huge ass string
 
 	hp_maxlen = 60
-	text = mg.text_generate(ml_model,training_data,maxlen=hp_maxlen,temperature=0.9,textlen=60)
+	text = mg.text_generate(ml_model,training_data,maxlen=hp_maxlen,temperature=temp,textlen=60)
 
-	return "temperature = {} lchs = {} len = {}".format(temp,chords,mlen)
+	return str(text)
+	# return "temperature = {} lchs = {} len = {}".format(temp,chords,mlen)
 
 
 
