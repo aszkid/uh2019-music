@@ -39,3 +39,5 @@ if __name__ == "__main__":
 #Parameter with list of chords 
 #Temperature 
 #length of the generated chords 
+
+# vlc "C:\\Users\\Ted\\Documents\\uh2019-music\\output_midi\\0_1" :no-video :sout=#transcode{acodec=mp3,ab=256}:std{access=file,mux=dummy,dst="C:\Users\Ted\Documents\uh2019-music\output_midi\test.mp3"} vlc://quit
