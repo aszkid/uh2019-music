@@ -1,5 +1,6 @@
-from music21 import chord, harmony, interval
-import json
+from music21 import chord, harmony, interval #Chord/Music Theory parsing
+from music21 import midi, volume, stream #Music Generation
+import json,time
 
 def transpose(ch, key):
   # transpose the given chord (wrt given key) to the C major scale
@@ -61,3 +62,107 @@ def preprocess(fname,out_file):
     g = open(out_file,'w')
     g.write(songs)
     g.close()
+    return;
+
+def better_preprocess(fname, outfname):
+    import sys
+    from functools import reduce
+    
+    print('Better preprocessing dataset...')
+    print('--------------------------------')
+    
+    count = 0
+    final = []
+    
+    with open(fname, 'r') as f:
+        j = json.loads(f.read())
+        
+        for song in j[count:]:
+            chs = [sanitize_chord(c) for c in song['chords']]
+            chs = tomusic21(chs)
+            key = sanitize_chord(song['tonality_name'])
+            if key == '':
+                continue
+                
+            chs = transpose_chs(chs, key)
+            chs = flatten(chs)
+            # separate chords with '12' integer
+            chs = reduce(lambda a, b: a+[12]+b, chs)
+            final.append(chs)
+            if count % 50 == 0:
+                sys.stdout.write('{}... '.format(count))
+            count += 1
+    
+    print('--------------------------------')
+    
+    # separate songs with '13' integer
+    final = reduce(lambda a, b: a+[13]+b, final)
+    
+    with open(outfname, 'w') as f:
+        json.dump(final, f)
+    return;
+
+#Helper functions for sanity checks of improperly formatted songs
+def count_none(fn):
+    count = 0 
+    with open(fn,'r') as f:
+        j = json.loads(f.read())
+        for song in j:
+            if(song['tonality_name'] == ''):
+                count += 1
+    return count
+
+def find_song(fname, num):
+    with open(fname,'r') as f:
+        j = json.loads(f.read())
+        raw = j[num]
+        chs = [sanitize_chord(c) for c in raw['chords']]
+        chs = tomusic21(chs)
+#         print(chs)
+        return chs, raw['tonality_name']
+        
+def write_song(chords:list, off = 0.0):
+    mod_chs = [chord.Chord(ch) for ch in chords]
+
+
+    for note in mod_chs:
+        note.volume = volume.Volume(velocity=90)
+        note.volume.velocityIsRelative = False
+        note.offset = off 
+        off += 1.2
+
+    s = stream.Stream(mod_chs)
+    print("Moving chords to stream, memory alloc {}".format(s))
+    mf = midi.translate.streamToMidiFile(s)
+
+    fname = '{}_0_9.midi'.format(time.strftime("%Y%m%d-%H%M%S"))
+    mf.open(fname,'wb')
+    mf.write()
+    mf.close()
+    print('done writing midi file')
+
+if __name__ == '__main__':
+    # preprocess('json_songs.json', 'test')
+    # better_preprocess('json_songs.json', 'clean_dataset.json')
+    # find_song('json_songs.json',201)
+
+    #test run
+    chords = [[7, 11, 2, 13, 0, 4, 7],
+             [2, 6, 9],
+             [11, 3, 6],
+             [4, 8, 8, 11],
+             [6, 8, 1, 3],
+             [11, 2, 6],
+             [10, 1, 6],
+             [1, 5, 8],
+             [11, 2, 5, 8],
+             [8, 11, 3],
+             [6, 10, 1],
+             [1, 6, 8],
+             [1, 5, 8],
+             [1, 5, 8],
+             [1, 3, 6],
+             [10, 1, 5],
+             [10, 1, 3]]
+
+    write_song(chords)
