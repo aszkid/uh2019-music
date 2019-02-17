@@ -37,8 +37,20 @@ def show_stuff():
 
 	hp_maxlen = 60
 	muse = mg.text_generate_w(ml_model,fill,60 - len(cleaned),maxlen=hp_maxlen,temperature=temp,textlen=60)
-	return str(muse)
-	# return str(text)
+	tempor = list(mg.splitz(muse,12))
+
+	for n1,x in enumerate(tempor): 
+		for n2,y in enumerate(x):
+			x[n2] = int(y) 
+
+
+	song = p.write_song(tempor)
+	
+	from flask import jsonify
+	resp = jsonify({'midif': song, 'chords': tempor})
+	resp.headers.add('Access-Control-Allow-Headers', 'x-requested-with')
+	resp.headers.add('Access-Control-Allow-Origin', '*')
+	return resp
 	# return "temperature = {} lchs = {} len = {}".format(temp,chords,mlen)
 
 

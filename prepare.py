@@ -105,7 +105,7 @@ def better_preprocess(fname, outfname):
 def chord_cleaned(chords):
     import sys
     from functools import reduce
-    
+
     chs = [sanitize_chord(c) for c in chords.split()]
     chs = tomusic21(chs)
     key = 'C'
@@ -135,9 +135,21 @@ def find_song(fname, num):
 #         print(chs)
         return chs, raw['tonality_name']
         
-def write_song(chords:list, off = 0.0):
-    mod_chs = [chord.Chord(ch) for ch in chords]
+def write_song(chords, off = 0.0):
+    #mod_chs = [chord.Chord(ch) for ch in chords]
+    from music21 import chord, harmony, interval #Chord/Music Theory parsing
+    from music21 import midi, volume, stream #Music Generation
 
+    print(chords)
+    # chords = [int(c) for c in chords]
+    mod_chs = []
+    for ch in chords:
+        print(ch)
+        try:
+            mod_chs.append(chord.Chord(ch))
+        except:
+            print("failed...")
+            pass
 
     for note in mod_chs:
         note.volume = volume.Volume(velocity=90)
@@ -149,11 +161,14 @@ def write_song(chords:list, off = 0.0):
     print("Moving chords to stream, memory alloc {}".format(s))
     mf = midi.translate.streamToMidiFile(s)
 
-    fname = '{}_0_9.midi'.format(time.strftime("%Y%m%d-%H%M%S"))
+    #fname = '{}.midi'.format(time.strftime("%Y%m%d-%H%M%S"))
+    fname = "output.midi"
     mf.open(fname,'wb')
     mf.write()
     mf.close()
     print('done writing midi file')
+
+    return fname
 
 if __name__ == '__main__':
     # preprocess('json_songs.json', 'test')
@@ -161,22 +176,6 @@ if __name__ == '__main__':
     # find_song('json_songs.json',201)
 
     #test run
-    chords = [[7, 11, 2, 13, 0, 4, 7],
-             [2, 6, 9],
-             [11, 3, 6],
-             [4, 8, 8, 11],
-             [6, 8, 1, 3],
-             [11, 2, 6],
-             [10, 1, 6],
-             [1, 5, 8],
-             [11, 2, 5, 8],
-             [8, 11, 3],
-             [6, 10, 1],
-             [1, 6, 8],
-             [1, 5, 8],
-             [1, 5, 8],
-             [1, 3, 6],
-             [10, 1, 5],
-             [10, 1, 3]]
+    chords = [[0, 4, 7], [7, 11, 2], [0, 4, 7], [0, 4, 7], [2, 5, 9], [7, 11, 2], [9, 0, 4], [7, 11, 2], [5, 9, 0], [0, 4, 7], [5, 9, 0], [7, 9, 2], [2, 5, 9], [0, 4, 7], [7, 11, 2], [0, 4, 7], [0, 4, 7]]
 
     write_song(chords)
