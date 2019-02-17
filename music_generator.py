@@ -6,6 +6,8 @@ import sys
 import time
 import json
 
+import prepare as p
+
 from keras import layers
 from keras.models import Sequential
 from keras import optimizers
@@ -250,20 +252,26 @@ if __name__ == "__main__":
 	#training of data
 	maxlen = 60 # train on sequences of 60 characters (about 6 chords)
 
-	model = train_model_from_text(
-	    training_data,
-	    maxlen=maxlen,
-	    step=6, # jump over 10 characters (~ one chord) 
-	    epochs=15
-	)
-	save_model(model,'uncommmon')
+	# model = train_model_from_text(
+	#     training_data,
+	#     maxlen=maxlen,
+	#     step=6, # jump over 10 characters (~ one chord) 
+	#     epochs=15
+	# )
+	# save_model(model,'uncommmon')
 
-	# model = load_ml('softmax.h5')
+	model = load_ml('softmax.h5')
 	outp = text_generate(
 		    model, 
 		    training_data,
 		    maxlen=maxlen,
 		    temperature=.9,
 		    textlen=60)
-	print(list(splitz(outp, 12)))
+	
+	tempor = list(splitz(outp,12))
 
+	for n1,x in enumerate(tempor): 
+		for n2,y in enumerate(x):
+			x[n2] = int(y) 
+
+	song = p.write_song(tempor)
