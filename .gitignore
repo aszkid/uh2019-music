@@ -1,3 +1,5 @@
 scraped/
 .ipynb_checkpoints/
 *.midi
+__pycache__
+test*
