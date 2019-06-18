@@ -8,7 +8,6 @@ app = Flask(__name__)
 
 @app.route("/")
 def main():
-	# return "AHHHHHHHHHHHH"
 	return render_template('index.html')
 
 @app.route('/gen',methods=['GET'])

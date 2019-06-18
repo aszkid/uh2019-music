@@ -30,7 +30,6 @@ def vectorizing_seq (text, maxlen, step):
                numpy.ndarray, 
                dict)     
     """
-    
     sentences = [] # hold extracted sequences
     next_chars = [] # hold next characters for each corresponding sentence
 
