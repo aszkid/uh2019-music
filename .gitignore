@@ -3,3 +3,4 @@ scraped/
 *.midi
 __pycache__/
 test*
+pipeline/data/json_songspp.json
