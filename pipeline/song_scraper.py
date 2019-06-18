@@ -1,10 +1,22 @@
+#Module responsible for collecting all of the songs we need
 import requests 
 import re
 import json
 import pprint
 from bs4 import BeautifulSoup
 
-def scrape_from_ug(fname):
+def print_json(fname, array_test=None):
+    z = open(fname,"r")
+    output = json.loads(z.read())
+    z.close()
+    if(array_test):
+        for x in array_test:
+            print(output[x])
+        return;
+
+    print(output)
+
+def scrape_from_ug(fname, saveWebPage = True,saveSongList = True):
     song_stack = list() 
     burl = "https://www.ultimate-guitar.com/explore?page={}&type[]=Chords"
 
@@ -27,11 +39,11 @@ def scrape_from_ug(fname):
             song['chords'] = ''
             song_stack.append(song)
             print(specific['song_name'])
-        #     print(specific['tonality_name'])
-        #     print(specific['tab_access_type'])
-        #     print(specific['artist_name'])
-        #     print(specific['tab_url'])
-        #     print("\n")
+            #print(specific['tonality_name'])
+            #print(specific['tab_access_type'])
+            #print(specific['artist_name'])
+            #print(specific['tab_url'])
+            #print("\n")
 
     for sg in song_stack:
         tab_wp = requests.get(sg['tab_url'])
@@ -39,18 +51,21 @@ def scrape_from_ug(fname):
             print("Hit an error getting to a song page")
             break
         
-        g = open("listofsongs","a")
-        g.write(sg['song_name'])
-        g.close()
+        if(saveSongList):
+            g = open("data/song_list","a")
+            g.write(sg['song_name'])
+            g.write("\n")
+            g.close()
         
-        f = open("scraped/{}".format(sg['song_name']),'w')
-        f.write(tab_wp.text)
-        f.close()
+        if(saveWebPage):
+            f = open("scraped/{}".format(sg['song_name']),'w')
+            f.write(tab_wp.text)
+            f.close()
         
         ppchords = re.findall(r"\[ch\](.*?)\[\\/ch\]",tab_wp.text)
         sg['chords'] = ppchords
 
-    print(song_stack)
+    # print(song_stack)
 
     q = open(fname,"w")
     q.write(json.dumps(song_stack))
@@ -59,11 +74,11 @@ def scrape_from_ug(fname):
 #TODO - Make other scraping functions from different sites 
 
 if __name__ == "__main__":
-    print("scraping song module starting now")
-    scrape_from_ug("songs.json")
+    print("Starting to scrape from 'Ultimate-Guitar.com'")
+    fname = "data/" + "songs.json"
+    scrape_from_ug(fname)
+    # scrape_from_ug(fname,saveWebPage=False)
 
-    z = open("json_songs.json","r")
-    output = json.loads(z.read())
-    z.close()
-
-    print(output[0])
+    #Just to verify output 
+    # print_json(fname, [0,100])
+    # print_json(fname)
